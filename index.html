@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hosteller Gatepass System - Login</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Prevents scrollbars from appearing due to the blur effect */
+        }
+
+        .bg-img {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://t4.ftcdn.net/jpg/02/19/66/93/360_F_219669327_v12pBKc7TB62E3uCJrgRRkDhfVENK3z5.jpg');
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            filter: blur(5px); /* Add blur effect */
+            z-index: -1; /* Place it behind other elements */
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            position: relative;
+        }
+
+        .login-box {
+            width: 300px;
+            background-color: rgba(255, 255, 255, 0.7); /* Translucent white */
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .login-header {
+            background-color: #ffffff;
+            padding: 20px;
+            text-align: center;
+            color: #000000;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .login-header h2 {
+            margin: 0;
+        }
+
+        .login-body {
+            padding: 20px;
+        }
+
+        .login-body label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .login-body input {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        .login-body button {
+            width: calc(100% - 20px);
+            padding: 10px;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease; /* Smooth transition */
+        }
+
+        .login-body button:hover {
+            background-color: #258cd1;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div class="bg-img"></div>
+    <div class="container">
+        <!-- Admin Login Box -->
+        <div class="login-box">
+            <div class="login-header">
+                <h2>Admin Login</h2>
+            </div>
+            <div class="login-body">
+                <label for="adminUsername">Username:</label>
+                <input type="text" id="adminUsername" name="adminUsername" placeholder="Enter your username">
+
+                <label for="adminPassword">Password:</label>
+                <input type="password" id="adminPassword" name="adminPassword" placeholder="Enter your password">
+
+                <button type="submit">Login</button>
+            </div>
+        </div>
+
+        <!-- User Login Box -->
+        <div class="login-box" style="margin-left: 80px;">
+            <div class="login-header">
+                <h2>User Login</h2>
+            </div>
+            <div class="login-body">
+                <label for="userUsername">Username:</label>
+                <input type="text" id="userUsername" name="userUsername" placeholder="Enter your username">
+
+                <label for="userPassword">Password:</label>
+                <input type="password" id="userPassword" name="userPassword" placeholder="Enter your password">
+
+                <button type="submit">Login</button>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
