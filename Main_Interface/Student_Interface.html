@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Interface</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-top: 10px;
+        }
+
+        input {
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Submit Gatepass Request</h2>
+        <form id="gatepassForm">
+            <label for="name">Name:</label>
+            <input type="text" id="name" required>
+
+            <label for="uid">UID:</label>
+            <input type="text" id="uid" required>
+
+            <label for="branch">Branch:</label>
+            <input type="text" id="branch" required>
+
+            <label for="date">Date:</label>
+            <input type="date" id="date" required>
+
+            <label for="place">Place of Visit:</label>
+            <input type="text" id="place" required>
+
+            <label for="timeOut">Time Out:</label>
+            <input type="time" id="timeOut" required>
+
+            <label for="timeIn">Time In:</label>
+            <input type="time" id="timeIn" required>
+
+            <label for="gatepassType">Gatepass Type:</label>
+            <select id="gatepassType" required>
+                <option value="dayout">Day Out</option>
+                <option value="nightout">Night Out</option>
+            </select>
+
+            <button type="button" onclick="submitGatepassRequest()">Submit Request</button>
+        </form>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.4/socket.io.js"></script>
+    <script>
+        const socket = io();
+    
+        function submitGatepassRequest() {
+            const name = document.getElementById('name').value;
+            const uid = document.getElementById('uid').value;
+            const branch = document.getElementById('branch').value;
+            const date = document.getElementById('date').value;
+            const place = document.getElementById('place').value;
+            const timeOut = document.getElementById('timeOut').value;
+            const timeIn = document.getElementById('timeIn').value;
+            const gatepassType = document.getElementById('gatepassType').value;
+    
+            // Construct the data object
+            const data = {
+                name,
+                uid,
+                branch,
+                date,
+                place,
+                timeOut,
+                timeIn,
+                gatepassType,
+            };
+    
+            // Emit the gatepass submission to the server
+            socket.emit('submitGatepass', data);
+    
+            // For simplicity, alert is used. In a real application, you might want to show a confirmation message or handle it differently.
+            alert('Gatepass request submitted successfully!');
+        }
+    </script>
+</body>
+</html>

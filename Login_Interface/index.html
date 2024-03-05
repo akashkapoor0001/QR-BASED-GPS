@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hosteller Gatepass System - Login</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Prevents scrollbars from appearing due to the blur effect */
+        }
+
+        .bg-img {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://wallpapers.com/images/featured/dark-theme-background-q62o6998n8bqxzrf.jpg');
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            filter: blur(5px); /* Add blur effect */
+            z-index: -1; /* Place it behind other elements */
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh; /* Adjusted height */
+            position: relative;
+        }
+
+        .login-box {
+            width: 350px;
+            height: 250px;
+            background-color: rgba(255, 255, 255, 0.7); /* Translucent white */
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            position: relative; /* Added position:relative to enable overlay text positioning */
+        }
+
+        .overlay-text {
+            position: absolute;
+            top: 45%; /* Adjusted position */
+            left: 50%;
+            text-align: center;
+            transform: translate(-50%, -50%);
+            color: #000; /* Black text color */
+            font-size: 14px; /* Adjusted font size */
+            z-index: 2;
+        }
+
+        .login-header {
+            background-color: #ffffff;
+            padding: 20px;
+            text-align: center;
+            color: #000000;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .login-header h2 {
+            margin: 0;
+        }
+
+        .login-body {
+            padding: 20px;
+        }
+
+        .login-body label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .login-body input {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        .login-body button {
+            width: 100px; /* Adjusted width */
+            padding: 10px;
+            background-color: #3498db;
+            margin-top: 90px;
+            margin-left: 105px;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease; /* Smooth transition */
+        }
+
+        .login-body button:hover {
+            background-color: #000000;
+            color: #fff;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div class="bg-img"></div>
+    <div class="container">
+        <!-- Admin Login Box -->
+        <div class="login-box">
+            <div class="login-header">
+                <h2>Admin Login</h2>
+            </div>
+            <div class="login-body">
+                <!-- Warden Interface Description -->
+                <p class="overlay-text">
+                    <b>Warden Interface - Manage hosteller gatepass records and approvals.</b>
+                </p>
+                <!-- Login button with link -->
+                <button onclick="location.href='admin.html'">Login</button>
+            </div>
+        </div>
+
+        <!-- User Login Box -->
+        <div class="login-box" style="margin-left: 80px;">
+            <div class="login-header">
+                <h2>User Login</h2>
+            </div>
+            <div class="login-body">
+                <!-- Student Interface Description -->
+                <p class="overlay-text">
+                    <b>Student Interface - Apply for and manage gatepass requests.</b>
+                </p>
+                <!-- Login button with link -->
+                <button onclick="location.href='user.html'">Login</button>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

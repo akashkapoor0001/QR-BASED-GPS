@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warden Interface</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #3498db;
+            color: #fff;
+        }
+
+        .request-actions {
+            margin-top: 20px;
+        }
+
+        .action-btn {
+            padding: 10px;
+            margin-right: 10px;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .approve-btn {
+            background-color: #27ae60;
+        }
+
+        .reject-btn {
+            background-color: #e74c3c;
+        }
+
+        .call-btn {
+            margin-top: 20px;
+            padding: 12px;
+            background-color: #f39c12;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Gatepass Requests</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>UID</th>
+                    <th>Branch</th>
+                    <th>Date</th>
+                    <th>Place of Visit</th>
+                    <th>Time Out</th>
+                    <th>Time In</th>
+                    <th>Gatepass Type</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="requestsTableBody">
+                <!-- Gatepass requests will be populated here dynamically -->
+            </tbody>
+        </table>
+
+        <div class="request-actions">
+            <button class="action-btn approve-btn" onclick="processRequest('approve')">Approve</button>
+            <button class="action-btn reject-btn" onclick="processRequest('reject')">Reject</button>
+        </div>
+
+        <button class="call-btn" onclick="callParents()">Call Now</button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.4/socket.io.js"></script>
+    <script>
+        const socket = io();
+
+        // Function to fetch and update gatepass requests from the database
+        function fetchAndPopulateRequests() {
+            // Fetch data from the server/database (adjust the URL accordingly)
+            fetch('http://localhost:3300/getRequests')
+                .then(response => response.json())
+                .then(data => {
+                    // Clear the existing table rows
+                    const tableBody = document.getElementById('requestsTableBody');
+                    tableBody.innerHTML = '';
+
+                    // Populate the table with the fetched data
+                    data.forEach(request => {
+                        const newRow = document.createElement('tr');
+                        newRow.innerHTML = `
+                            <td>${request.name}</td>
+                            <td>${request.uid}</td>
+                            <td>${request.branch}</td>
+                            <td>${request.date}</td>
+                            <td>${request.place}</td>
+                            <td>${request.time_out}</td>
+                            <td>${request.time_in}</td>
+                            <td>${request.gatepass_type}</td>
+                            <td>${request.status}</td>
+                            <td>Actions</td>
+                        `;
+
+                        // Append the new row to the table
+                        tableBody.appendChild(newRow);
+                    });
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        }
+
+        // Listen for new gatepass requests from students
+        socket.on('newGatepassRequest', (data) => {
+            // Update your warden interface to display the new request
+            const tableBody = document.getElementById('requestsTableBody');
+
+            // Create a new row and populate it with data from the received request
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td>${data.name}</td>
+                <td>${data.uid}</td>
+                <td>${data.branch}</td>
+                <td>${data.date}</td>
+                <td>${data.place}</td>
+                <td>${data.timeOut}</td>
+                <td>${data.timeIn}</td>
+                <td>${data.gatepassType}</td>
+                <td>${data.status}</td>
+                <td>Actions</td>
+            `;
+
+            // Append the new row to the table
+            tableBody.appendChild(newRow);
+
+            console.log('New gatepass request received:', data);
+        });
+
+        // Function to process the gatepass request (approve or reject)
+        function processRequest(action) {
+            // Implement your logic here based on the selected action
+            console.log(`Processing request: ${action}`);
+        }
+
+        // Function to call parents
+        function callParents() {
+            // Implement your logic here to initiate a call to parents
+            console.log('Calling parents...');
+        }
+
+        // Fetch and populate requests when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchAndPopulateRequests();
+
+            // Optionally, you can set up an interval to periodically update the requests
+            setInterval(fetchAndPopulateRequests, 5000); // Update every 5 seconds (adjust as needed)
+        });
+    </script>
+</body>
+
+</html>
