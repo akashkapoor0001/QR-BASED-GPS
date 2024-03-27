@@ -1,3 +1,5 @@
+<!-- Warden-Interface -->
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -106,83 +108,78 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.4/socket.io.js"></script>
     <script>
-        const socket = io();
-
-        // Function to fetch and update gatepass requests from the database
+        const socket = new WebSocket('ws://localhost:3300', 'warden-socket');
+        const requestsList = []; // Array to store gatepass requests
+    
+        // Function to fetch and update gatepass requests from the server
         function fetchAndPopulateRequests() {
             // Fetch data from the server/database (adjust the URL accordingly)
             fetch('http://localhost:3300/getRequests')
                 .then(response => response.json())
                 .then(data => {
-                    // Clear the existing table rows
-                    const tableBody = document.getElementById('requestsTableBody');
-                    tableBody.innerHTML = '';
-
-                    // Populate the table with the fetched data
-                    data.forEach(request => {
-                        const newRow = document.createElement('tr');
-                        newRow.innerHTML = `
-                            <td>${request.name}</td>
-                            <td>${request.uid}</td>
-                            <td>${request.branch}</td>
-                            <td>${request.date}</td>
-                            <td>${request.place}</td>
-                            <td>${request.time_out}</td>
-                            <td>${request.time_in}</td>
-                            <td>${request.gatepass_type}</td>
-                            <td>${request.status}</td>
-                            <td>Actions</td>
-                        `;
-
-                        // Append the new row to the table
-                        tableBody.appendChild(newRow);
-                    });
+                    // Update the client-side requestsList with the fetched data
+                    requestsList.splice(0, requestsList.length, ...data);
+    
+                    // Update the UI with the latest requestsList
+                    updateUI();
                 })
                 .catch(error => console.error('Error fetching data:', error));
         }
-
+    
         // Listen for new gatepass requests from students
-        socket.on('newGatepassRequest', (data) => {
-            // Update your warden interface to display the new request
+        socket.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+    
+            if (data.type === 'newGatepassRequest') {
+                // Add the new request to the client-side requestsList
+                requestsList.push(data.data);
+    
+                // Update the UI with the latest requestsList
+                updateUI();
+            }
+        };
+    
+        // Function to update the UI with the latest requestsList
+        function updateUI() {
             const tableBody = document.getElementById('requestsTableBody');
-
-            // Create a new row and populate it with data from the received request
-            const newRow = document.createElement('tr');
-            newRow.innerHTML = `
-                <td>${data.name}</td>
-                <td>${data.uid}</td>
-                <td>${data.branch}</td>
-                <td>${data.date}</td>
-                <td>${data.place}</td>
-                <td>${data.timeOut}</td>
-                <td>${data.timeIn}</td>
-                <td>${data.gatepassType}</td>
-                <td>${data.status}</td>
-                <td>Actions</td>
-            `;
-
-            // Append the new row to the table
-            tableBody.appendChild(newRow);
-
-            console.log('New gatepass request received:', data);
-        });
-
+    
+            // Clear the existing table rows
+            tableBody.innerHTML = '';
+    
+            // Populate the table with the latest requestsList
+            requestsList.forEach(request => {
+                const newRow = document.createElement('tr');
+                newRow.innerHTML = `
+                    <td>${request.name}</td>
+                    <td>${request.uid}</td>
+                    <td>${request.branch}</td>
+                    <td>${request.date}</td>
+                    <td>${request.place}</td>
+                    <td>${request.timeOut}</td>
+                    <td>${request.timeIn}</td>
+                    <td>${request.gatepassType}</td>
+                    <td>${request.status}</td>
+                    <td>
+                        <button class="action-btn approve-btn" onclick="processRequest('approve')">Approve</button>
+                        <button class="action-btn reject-btn" onclick="processRequest('reject')">Reject</button>
+                    </td>
+                `;
+    
+                // Append the new row to the table
+                tableBody.appendChild(newRow);
+            });
+        }
+    
         // Function to process the gatepass request (approve or reject)
         function processRequest(action) {
             // Implement your logic here based on the selected action
             console.log(`Processing request: ${action}`);
         }
-
-        // Function to call parents
-        function callParents() {
-            // Implement your logic here to initiate a call to parents
-            console.log('Calling parents...');
-        }
-
+    
         // Fetch and populate requests when the page loads
         document.addEventListener('DOMContentLoaded', () => {
             fetchAndPopulateRequests();
-
+    
             // Optionally, you can set up an interval to periodically update the requests
             setInterval(fetchAndPopulateRequests, 5000); // Update every 5 seconds (adjust as needed)
         });

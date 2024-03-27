@@ -127,7 +127,7 @@
                 .then(result => {
                     if (result.trim() === 'success') {
                         // Redirect on successful login
-                        window.location.href = 'Warden_Interface.html';
+                        window.location.href = 'http://localhost:3300/?userType=warden';
                     } else {
                         errorMessage.textContent = result; // Display the error message from the server
                     }

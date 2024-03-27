@@ -2,12 +2,12 @@
 
 const express = require('express');
 const http = require('http');
-const socketIo = require('socket.io');
+const WebSocket = require('ws');
 const mysql = require('mysql');
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server);
+const wss = new WebSocket.Server({ server });
 
 const db = mysql.createConnection({
     host: 'localhost',
@@ -27,63 +27,70 @@ db.connect((err) => {
 app.use(express.static('Main_Interface'));
 
 app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/Main_Interface/Student_Interface.html');
+// sourcery skip: use-object-destructuring
+    const userType = req.query.userType;
+
+    console.log('Received request with userType:', userType);
+
+    if (userType === 'student') {
+        res.sendFile(__dirname + '/Main_Interface/Student_Interface.html');
+    } else if (userType === 'warden') {
+        res.sendFile(__dirname + '/Main_Interface/Warden_Interface.html');
+    } else {
+        console.log('Invalid userType:', userType);
+        res.status(400).send('Invalid user type');
+    }
 });
 
-// Add this route to handle fetching gatepass requests from the database
-app.get('/getRequests', (req, res) => {
-    // Fetch gatepass requests from the database (adjust the query accordingly)
-    const selectQuery = 'SELECT * FROM gatepass_requests';
-    db.query(selectQuery, (err, results) => {
-        if (err) {
-            console.error('Error fetching requests from the database:', err.stack);
-            res.status(500).json({ error: 'Internal Server Error' });
-            return;
+// WebSocket server handling connections
+wss.on('connection', (ws) => {
+    console.log('A user connected via WebSocket');
+
+    ws.on('message', (message) => {
+        const data = JSON.parse(message);
+
+        if (data.type === 'submitGatepass') {
+            const { name, uid, branch, date, place, timeOut, timeIn, gatepassType } = data.data;
+
+            const insertQuery = `INSERT INTO gatepass_requests (name, uid, branch, date, place, time_out, time_in, gatepass_type, status)
+                                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Pending')`;
+
+            db.query(insertQuery, [name, uid, branch, date, place, timeOut, timeIn, gatepassType], (err, result) => {
+                if (err) {
+                    console.error('Error inserting into database: ' + err.stack);
+                    ws.send(JSON.stringify({ type: 'error', message: 'Failed to submit gatepass request' }));
+                    return;
+                }
+
+                console.log('Gatepass request inserted into the database');
+
+                const newGatepassRequest = {
+                    id: result.insertId,
+                    name,
+                    uid,
+                    branch,
+                    date,
+                    place,
+                    timeOut,
+                    timeIn,
+                    gatepassType,
+                    status: 'Pending',
+                };
+
+                // Notify all connected clients (warden interfaces) about the new request
+                wss.clients.forEach((client) => {
+                    if (client.readyState === WebSocket.OPEN) {
+                        client.send(JSON.stringify({ type: 'newGatepassRequest', data: newGatepassRequest }));
+                    }
+                });
+
+                ws.send(JSON.stringify({ type: 'success', message: 'Gatepass request submitted successfully' }));
+            });
         }
-
-        // Send the fetched data as JSON
-        res.json(results);
-    });
-});
-
-// Listen for gatepass submission from student interface
-io.on('connection', (socket) => {
-    console.log('A user connected');
-
-    socket.on('submitGatepass', (data) => {
-        const { name, uid, branch, date, place, timeOut, timeIn, gatepassType } = data;
-
-        const insertQuery = `INSERT INTO gatepass_requests (name, uid, branch, date, place, time_out, time_in, gatepass_type, status)
-                             VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Pending')`;
-
-        db.query(insertQuery, [name, uid, branch, date, place, timeOut, timeIn, gatepassType], (err, result) => {
-            if (err) {
-                console.error('Error inserting into database: ' + err.stack);
-                return;
-            }
-
-            console.log('Gatepass request inserted into the database');
-
-            const newGatepassRequest = {
-                id: result.insertId,
-                name,
-                uid,
-                branch,
-                date,
-                place,
-                timeOut,
-                timeIn,
-                gatepassType,
-                status: 'Pending',
-            };
-
-            // Notify the warden interface about the new request
-            io.emit('newGatepassRequest', newGatepassRequest);
-        });
     });
 
-    socket.on('disconnect', () => {
-        console.log('User disconnected');
+    ws.on('close', () => {
+        console.log('User disconnected via WebSocket');
     });
 });
 

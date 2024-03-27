@@ -1,3 +1,5 @@
+<!-- Student-Interface -->
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -85,36 +87,26 @@
         </form>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.4/socket.io.js"></script>
     <script>
-        const socket = io();
-    
+        const socket = new WebSocket('ws://localhost:3300', 'student-socket');
+
         function submitGatepassRequest() {
-            const name = document.getElementById('name').value;
-            const uid = document.getElementById('uid').value;
-            const branch = document.getElementById('branch').value;
-            const date = document.getElementById('date').value;
-            const place = document.getElementById('place').value;
-            const timeOut = document.getElementById('timeOut').value;
-            const timeIn = document.getElementById('timeIn').value;
-            const gatepassType = document.getElementById('gatepassType').value;
-    
-            // Construct the data object
-            const data = {
-                name,
-                uid,
-                branch,
-                date,
-                place,
-                timeOut,
-                timeIn,
-                gatepassType,
+            // Collect form data
+            const formData = {
+                name: document.getElementById('name').value,
+                uid: document.getElementById('uid').value,
+                branch: document.getElementById('branch').value,
+                date: document.getElementById('date').value,
+                place: document.getElementById('place').value,
+                timeOut: document.getElementById('timeOut').value,
+                timeIn: document.getElementById('timeIn').value,
+                gatepassType: document.getElementById('gatepassType').value,
             };
-    
+
             // Emit the gatepass submission to the server
-            socket.emit('submitGatepass', data);
-    
-            // For simplicity, alert is used. In a real application, you might want to show a confirmation message or handle it differently.
+            socket.send(JSON.stringify({ type: 'submitGatepass', data: formData }));
+
+            // Optionally, you can clear the form or provide user feedback
             alert('Gatepass request submitted successfully!');
         }
     </script>
