@@ -1,5 +1,3 @@
-<!-- Student-Interface -->
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -33,11 +31,16 @@
             margin-top: 10px;
         }
 
+
         input {
             padding: 10px;
             margin: 5px 0;
             border: 1px solid #ccc;
             border-radius: 4px;
+        }
+
+        #approvalButtonContainer {
+            margin-top: 20px;
         }
 
         button {
@@ -83,13 +86,36 @@
                 <option value="nightout">Night Out</option>
             </select>
 
-            <button type="button" onclick="submitGatepassRequest()">Submit Request</button>
+            <button type="button" onclick="submitGatepassRequest()">Submit Request</button> 
+            <div id="approvalButtonContainer"></div>
         </form>
     </div>
+    
 
     <script>
         const socket = new WebSocket('ws://localhost:3300', 'student-socket');
+    
+        socket.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+    
+            // Check if the message indicates approval
+            if (data.type === 'approve') {
+                // Display the button below the form
+                const approvalButtonContainer = document.getElementById('approvalButtonContainer');
+                const button = document.createElement('button');
+                button.textContent = 'View Gatepass Receipt';
+                button.addEventListener('click', () => {
+                    // Redirect to gatepass_receipt.html when the button is clicked
+                   redirectt();
+                });
+                approvalButtonContainer.appendChild(button);
+            }
+        };
 
+        function redirectt(){
+            window.location.href = '/gatepass_receipt.html';
+        }
+    
         function submitGatepassRequest() {
             // Collect form data
             const formData = {
@@ -102,13 +128,15 @@
                 timeIn: document.getElementById('timeIn').value,
                 gatepassType: document.getElementById('gatepassType').value,
             };
-
+    
             // Emit the gatepass submission to the server
             socket.send(JSON.stringify({ type: 'submitGatepass', data: formData }));
-
+           
             // Optionally, you can clear the form or provide user feedback
             alert('Gatepass request submitted successfully!');
+            document.getElementById('gatepassForm').reset();
         }
     </script>
+    
 </body>
 </html>

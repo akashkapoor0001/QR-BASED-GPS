@@ -98,11 +98,6 @@
             </tbody>
         </table>
 
-        <div class="request-actions">
-            <button class="action-btn approve-btn" onclick="processRequest('approve')">Approve</button>
-            <button class="action-btn reject-btn" onclick="processRequest('reject')">Reject</button>
-        </div>
-
         <button class="call-btn" onclick="callParents()">Call Now</button>
     </div>
 
@@ -110,7 +105,7 @@
     <script>
         const socket = new WebSocket('ws://localhost:3300', 'warden-socket');
         const requestsList = []; // Array to store gatepass requests
-    
+
         // Function to fetch and update gatepass requests from the server
         function fetchAndPopulateRequests() {
             // Fetch data from the server/database (adjust the URL accordingly)
@@ -160,8 +155,8 @@
                     <td>${request.gatepassType}</td>
                     <td>${request.status}</td>
                     <td>
-                        <button class="action-btn approve-btn" onclick="processRequest('approve')">Approve</button>
-                        <button class="action-btn reject-btn" onclick="processRequest('reject')">Reject</button>
+                        <button class="action-btn approve-btn" onclick="approveRequest('${request.id}')">Approve</button>
+                        <button class="action-btn reject-btn" onclick="rejectRequest()">Reject</button>
                     </td>
                 `;
     
@@ -170,10 +165,18 @@
             });
         }
     
-        // Function to process the gatepass request (approve or reject)
-        function processRequest(action) {
-            // Implement your logic here based on the selected action
-            console.log(`Processing request: ${action}`);
+        // Function to approve a request
+        function approveRequest(requestId) {
+            // Send a socket message to the student interface
+            const approvalData = { type: 'approve', requestId: requestId };
+            socket.send(JSON.stringify(approvalData));
+            
+        }
+    
+        // Function to reject a request
+        function rejectRequest() {
+            // Display an alert indicating rejection
+            alert('Rejected');
         }
     
         // Fetch and populate requests when the page loads

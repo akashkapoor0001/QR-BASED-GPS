@@ -19,7 +19,7 @@ app.use(session({
 const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: 'Root@123',
+    password: 'root@123',
     database: 'gps',
 });
 

@@ -12,7 +12,7 @@ const wss = new WebSocket.Server({ server });
 const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: 'Root@123',
+    password: 'root@123',
     database: 'gps',
 });
 
@@ -27,7 +27,6 @@ db.connect((err) => {
 app.use(express.static('Main_Interface'));
 
 app.get('/', (req, res) => {
-// sourcery skip: use-object-destructuring
     const userType = req.query.userType;
 
     console.log('Received request with userType:', userType);
@@ -43,8 +42,13 @@ app.get('/', (req, res) => {
 });
 
 // WebSocket server handling connections
-wss.on('connection', (ws) => {
+wss.on('connection', (ws, req) => {
     console.log('A user connected via WebSocket');
+
+    // Determine the user type based on the query parameter
+    const userType = new URLSearchParams(req.url.split('?')[1]).get('userType');
+
+    ws.protocol = userType + '-socket';
 
     ws.on('message', (message) => {
         const data = JSON.parse(message);
@@ -79,12 +83,34 @@ wss.on('connection', (ws) => {
 
                 // Notify all connected clients (warden interfaces) about the new request
                 wss.clients.forEach((client) => {
-                    if (client.readyState === WebSocket.OPEN) {
+                    if (client.readyState === WebSocket.OPEN && client.protocol === 'warden-socket') {
                         client.send(JSON.stringify({ type: 'newGatepassRequest', data: newGatepassRequest }));
                     }
                 });
 
                 ws.send(JSON.stringify({ type: 'success', message: 'Gatepass request submitted successfully' }));
+            });
+        } else if (data.type === 'approve') {
+            const requestId = data.requestId;
+            const updateQuery = `UPDATE gatepass_requests SET status = 'Approved' WHERE id = ?`;
+
+            db.query(updateQuery, [requestId], (err, result) => {
+                if (err) {
+                    console.error('Error updating database: ' + err.stack);
+                    ws.send(JSON.stringify({ type: 'error', message: 'Failed to approve gatepass request' }));
+                    return;
+                }
+
+                console.log('Gatepass request approved in the database');
+
+                // Notify all connected clients (student interfaces) about the approval
+                wss.clients.forEach((client) => {
+                    if (client.readyState === WebSocket.OPEN && client.protocol === 'student-socket') {
+                        client.send(JSON.stringify({ type: 'approve' }));
+                    }
+                });
+
+                ws.send(JSON.stringify({ type: 'success', message: 'Gatepass request approved successfully' }));
             });
         }
     });

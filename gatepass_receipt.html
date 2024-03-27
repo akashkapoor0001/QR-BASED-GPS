@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gatepass Receipt</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+
+        .receipt-container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .receipt-info {
+            margin-bottom: 20px;
+        }
+
+        .receipt-info p {
+            margin: 5px 0;
+        }
+
+        #qrcode {
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="receipt-container">
+        <h2>Gatepass Receipt</h2>
+        <div class="receipt-info" id="gatepassInfo">
+            <!-- Gatepass information will be populated here dynamically -->
+        </div>
+        <div id="qrcode"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
+    <script>
+        // Function to parse URL parameters
+        function getUrlParameter(name) {
+            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+            var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+            var results = regex.exec(location.search);
+            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+        };
+
+        // Get action and request ID from URL parameters
+        const action = getUrlParameter('action');
+        const requestId = getUrlParameter('requestId');
+
+        // Sample gatepass data (replace with actual data fetching logic)
+        const gatepassData = {
+            name: "John Doe",
+            stream: "Engineering",
+            location: "Main Gate",
+            timeIn: "08:00 AM",
+            timeOut: "05:00 PM"
+            // Add more details as needed
+        };
+
+        // Display the gatepass information
+        const gatepassInfo = document.getElementById('gatepassInfo');
+        gatepassInfo.innerHTML = `
+            <p><strong>Request ID:</strong> ${requestId}</p>
+            <p><strong>Status:</strong> ${action === 'approve' ? '<span style="color: green;">Approved</span>' : '<span style="color: red;">Rejected</span>'}</p>
+            <p><strong>Name:</strong> ${gatepassData.name}</p>
+            <p><strong>Stream:</strong> ${gatepassData.stream}</p>
+            <p><strong>Location:</strong> ${gatepassData.location}</p>
+            <p><strong>Time In:</strong> ${gatepassData.timeIn}</p>
+            <p><strong>Time Out:</strong> ${gatepassData.timeOut}</p>
+            <!-- Add more gatepass details here -->
+        `;
+
+        // Generate QR code
+        const qrCodeDiv = document.getElementById('qrcode');
+        const qrCode = new QRCode(qrCodeDiv, {
+            text: `Gatepass ID: ${requestId}`,
+            width: 200,
+            height: 200
+        });
+    </script>
+</body>
+
+</html>
